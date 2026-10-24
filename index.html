@@ -67,10 +67,10 @@
         </div>
     </div>
 
-    <!-- الشريط العلوي (تمت إزالة زر المطور نهائياً من هنا) -->
+    <!-- الشريط العلوي -->
     <header class="bg-primary text-white shadow-md sticky top-0 z-40">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center space-x-3 space-x-reverse" ondblclick="openDeveloperModalSecure()">
+            <div class="flex items-center space-x-3 space-x-reverse cursor-pointer" ondblclick="openDeveloperModalSecure()">
                 <div class="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center text-white font-bold text-xl shadow">
                     <i class="fa-solid fa-cube"></i>
                 </div>
@@ -95,10 +95,10 @@
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <div class="bg-white p-4 rounded-2xl shadow-sm border-r-4 border-primary flex items-center justify-between">
                 <div>
-                    <p class="text-xs text-gray-500">إجمالي المبيعات (USD)</p>
-                    <h3 id="statSalesUSD" class="text-xl font-bold text-primary mt-1">$0.00</h3>
+                    <p class="text-xs text-gray-500">إجمالي النقد بالصناديق</p>
+                    <h3 id="statCashTotal" class="text-xl font-bold text-primary mt-1">$0.00</h3>
                 </div>
-                <div class="w-10 h-10 rounded-xl bg-blue-50 text-primary flex items-center justify-center"><i class="fa-solid fa-dollar-sign"></i></div>
+                <div class="w-10 h-10 rounded-xl bg-blue-50 text-primary flex items-center justify-center"><i class="fa-solid fa-vault"></i></div>
             </div>
             <div class="bg-white p-4 rounded-2xl shadow-sm border-r-4 border-secondary flex items-center justify-between">
                 <div>
@@ -116,7 +116,7 @@
             </div>
             <div class="bg-white p-4 rounded-2xl shadow-sm border-r-4 border-indigo-500 flex items-center justify-between">
                 <div>
-                    <p class="text-xs text-gray-500">العملة الافتراضية</p>
+                    <p class="text-xs text-gray-500">العملات المدعومة</p>
                     <h3 class="text-xl font-bold text-indigo-600 mt-1">USD / SYP / TRY</h3>
                 </div>
                 <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center"><i class="fa-solid fa-coins"></i></div>
@@ -126,9 +126,10 @@
         <!-- التبويبات -->
         <div class="flex border-b border-gray-200 mb-6 gap-2 overflow-x-auto">
             <button onclick="switchTab('pos')" id="tab-pos" class="tab-btn px-5 py-2.5 font-bold text-sm border-b-2 border-primary text-primary transition">نقطة البيع والفواتير</button>
-            <button onclick="switchTab('items')" id="tab-items" class="tab-btn px-5 py-2.5 font-bold text-sm border-b-2 border-transparent text-gray-500 hover:text-primary transition">إدارة المستودع (3 وحدات)</button>
+            <button onclick="switchTab('vouchers')" id="tab-vouchers" class="tab-btn px-5 py-2.5 font-bold text-sm border-b-2 border-transparent text-gray-500 hover:text-primary transition">السندات (قبض، دفع، مصاريف)</button>
+            <button onclick="switchTab('treasury')" id="tab-treasury" class="tab-btn px-5 py-2.5 font-bold text-sm border-b-2 border-transparent text-gray-500 hover:text-primary transition">الصناديق والخزائن</button>
+            <button onclick="switchTab('items')" id="tab-items" class="tab-btn px-5 py-2.5 font-bold text-sm border-b-2 border-transparent text-gray-500 hover:text-primary transition">المستودع (3 وحدات)</button>
             <button onclick="switchTab('partners')" id="tab-partners" class="tab-btn px-5 py-2.5 font-bold text-sm border-b-2 border-transparent text-gray-500 hover:text-primary transition">العملاء والموردين</button>
-            <button onclick="switchTab('accounts')" id="tab-accounts" class="tab-btn px-5 py-2.5 font-bold text-sm border-b-2 border-transparent text-gray-500 hover:text-primary transition">شجرة الحسابات</button>
         </div>
 
         <!-- قسم نقطة البيع -->
@@ -148,12 +149,15 @@
                         <select id="invoicePartner" class="w-full p-2.5 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary"></select>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">العملة</label>
-                        <select id="invoiceCurrency" class="w-full p-2.5 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary">
-                            <option value="USD">دولار أمريكي ($)</option>
-                            <option value="SYP">ليرة سورية (SYP)</option>
-                            <option value="TRY">ليرة تركية (TRY)</option>
-                        </select>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">العملة والصندوق المقبوض منه</label>
+                        <div class="flex gap-1">
+                            <select id="invoiceCurrency" class="w-1/2 p-2.5 border rounded-xl text-sm outline-none">
+                                <option value="USD">USD ($)</option>
+                                <option value="SYP">SYP (ل.س)</option>
+                                <option value="TRY">TRY (ل.ت)</option>
+                            </select>
+                            <select id="invoiceTreasury" class="w-1/2 p-2.5 border rounded-xl text-sm outline-none"></select>
+                        </div>
                     </div>
                 </div>
 
@@ -206,7 +210,7 @@
 
                 <div class="mt-6 space-y-3">
                     <button onclick="saveInvoice()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl transition shadow text-sm flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-check"></i> حفظ وترحيل الفاتورة
+                        <i class="fa-solid fa-check"></i> حفظ وترحيل الفاتورة للصندوق
                     </button>
                     <button onclick="printInvoice()" class="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-2.5 rounded-xl transition text-sm flex items-center justify-center gap-2">
                         <i class="fa-solid fa-print"></i> معاينة وطباعة الفاتورة
@@ -215,475 +219,31 @@
             </div>
         </div>
 
-        <!-- قسم المستودع والمواد -->
-        <div id="section-items" class="tab-content hidden space-y-6">
+        <!-- قسم السندات (قبض، دفع، مصاريف) -->
+        <div id="section-vouchers" class="tab-content hidden space-y-6">
             <div class="bg-white p-5 rounded-2xl shadow-sm">
-                <h3 class="font-bold text-base text-primary mb-4 flex items-center gap-2"><i class="fa-solid fa-boxes-stacked"></i> إضافة مادة جديدة (نظام 3 وحدات: قطعة، دزينة، صندوق)</h3>
-                <div class="grid grid-cols-1 md:grid-cols-5 gap-3 mb-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">اسم المادة</label>
-                        <input type="text" id="newItemName" placeholder="مثال: طابعة حرارية" class="w-full p-2.5 border rounded-xl text-sm outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">القطعة (الوحدة الصغرى)</label>
-                        <input type="number" id="newItemStock" placeholder="الرصيد بالقطع" class="w-full p-2.5 border rounded-xl text-sm outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">سعر المبيع ($)</label>
-                        <input type="number" id="newItemPrice" placeholder="السعر" class="w-full p-2.5 border rounded-xl text-sm outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">الباركود</label>
-                        <input type="text" id="newItemBarcode" placeholder="الباركود" class="w-full p-2.5 border rounded-xl text-sm outline-none">
-                    </div>
-                    <div class="flex items-end">
-                        <button onclick="addNewItem()" class="w-full bg-primary hover:bg-blue-900 text-white font-bold py-2.5 rounded-xl text-sm transition">حفظ المادة</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white p-5 rounded-2xl shadow-sm">
-                <h3 class="font-bold text-base text-primary mb-4">قائمة المواد المخزنية</h3>
-                <div class="overflow-x-auto border rounded-xl">
-                    <table class="w-full text-right text-sm">
-                        <thead class="bg-gray-100 text-gray-600 text-xs">
-                            <tr>
-                                <th class="p-3">اسم المادة</th>
-                                <th class="p-3">الرصيد بالقطع</th>
-                                <th class="p-3">معامل التعبئة (دزينة/صندوق)</th>
-                                <th class="p-3">سعر المبيع ($)</th>
-                                <th class="p-3">الباركود</th>
-                                <th class="p-3">إجراءات</th>
-                            </tr>
-                        </thead>
-                        <tbody id="itemsTableBody" class="divide-y"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- قسم العملاء والموردين -->
-        <div id="section-partners" class="tab-content hidden space-y-6">
-            <div class="bg-white p-5 rounded-2xl shadow-sm">
-                <h3 class="font-bold text-base text-primary mb-4 flex items-center gap-2"><i class="fa-solid fa-user-plus"></i> إضافة عميل أو مورد جديد</h3>
+                <h3 class="font-bold text-base text-primary mb-4 flex items-center gap-2"><i class="fa-solid fa-receipt"></i> إصدار سند جديد (قبض / دفع / مصاريف)</h3>
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
                     <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">اسم العميل / المورد</label>
-                        <input type="text" id="partnerName" placeholder="الاسم الكامل" class="w-full p-2.5 border rounded-xl text-sm outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">التصنيف</label>
-                        <select id="partnerType" class="w-full p-2.5 border rounded-xl text-sm outline-none">
-                            <option value="customer">عميل (زبون)</option>
-                            <option value="supplier">مورد</option>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">نوع السند</label>
+                        <select id="voucherType" onchange="toggleVoucherFields()" class="w-full p-2.5 border rounded-xl text-sm outline-none">
+                            <option value="receipt">سند قبض (من عميل)</option>
+                            <option value="payment">سند دفع (لمورد)</option>
+                            <option value="expense">سند مصاريف (تشغيلية)</option>
                         </select>
                     </div>
+                    <div id="partnerFieldContainer">
+                        <label class="block id-label text-xs font-semibold text-gray-600 mb-1">العميل / المورد</label>
+                        <select id="voucherPartner" class="w-full p-2.5 border rounded-xl text-sm outline-none"></select>
+                    </div>
                     <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">رقم الهاتف / الواتساب</label>
-                        <input type="text" id="partnerPhone" placeholder="رقم الهاتف" class="w-full p-2.5 border rounded-xl text-sm outline-none">
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">الصندوق المالي</label>
+                        <select id="voucherTreasury" class="w-full p-2.5 border rounded-xl text-sm outline-none"></select>
                     </div>
-                    <div class="flex items-end">
-                        <button onclick="addNewPartner()" class="w-full bg-primary hover:bg-blue-900 text-white font-bold py-2.5 rounded-xl text-sm transition">حفظ الجهة</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white p-5 rounded-2xl shadow-sm">
-                <h3 class="font-bold text-base text-primary mb-4">دليل العملاء والموردين</h3>
-                <div class="overflow-x-auto border rounded-xl">
-                    <table class="w-full text-right text-sm">
-                        <thead class="bg-gray-100 text-gray-600 text-xs">
-                            <tr>
-                                <th class="p-3">الاسم</th>
-                                <th class="p-3">التصنيف</th>
-                                <th class="p-3">الهاتف</th>
-                                <th class="p-3">الرصيد الحالي</th>
-                                <th class="p-3">إجراءات</th>
-                            </tr>
-                        </thead>
-                        <tbody id="partnersTableBody" class="divide-y"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- قسم شجرة الحسابات -->
-        <div id="section-accounts" class="tab-content hidden space-y-6">
-            <div class="bg-white p-5 rounded-2xl shadow-sm">
-                <h3 class="font-bold text-base text-primary mb-4 flex items-center gap-2"><i class="fa-solid fa-sitemap"></i> شجرة الحسابات المحاسبية الهرمية</h3>
-                <div class="space-y-3">
-                    <div class="p-3 bg-blue-50 border border-blue-200 rounded-xl font-bold text-primary">📁 1. الأصول (الأموال، الصناديق، البنوك، المستودعات، العملاء)</div>
-                    <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl font-bold text-amber-800">📁 2. الخصوم وحقوق الملكية (الموردين، رأس المال)</div>
-                    <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl font-bold text-emerald-800">📁 3. الإيرادات (المبيعات، الإيرادات المتنوعة)</div>
-                    <div class="p-3 bg-rose-50 border border-rose-200 rounded-xl font-bold text-rose-800">📁 4. المصاريف (مصاريف تشغيلية، رواتب، إيجارات)</div>
-                </div>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- نافذة لوحة تحكم المطور (مخفية تماماً ولا تفتح إلا بالضغط المزدوج على شعار المؤسسة وإدخال كلمة المرور) -->
-    <div id="developerModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6">
-            <div class="flex justify-between items-center mb-4 border-b pb-3">
-                <h3 class="font-bold text-lg text-primary"><i class="fa-solid fa-key"></i> لوحة المطور - مولد أكواد التفعيل</h3>
-                <button onclick="closeDeveloperModal()" class="text-gray-400 hover:text-gray-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1">أدخل معرّف جهاز العميل (Hardware ID)</label>
-                    <input type="text" id="devTargetHardwareId" placeholder="مثال: SMH-DEV-XXXX" class="w-full p-2.5 border rounded-xl text-sm font-mono uppercase outline-none focus:ring-2 focus:ring-secondary">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1">اسم العميل</label>
-                    <input type="text" id="devClientName" placeholder="اسم صاحب المنشأة أو المحل" class="w-full p-2.5 border rounded-xl text-sm outline-none">
-                </div>
-                <button onclick="generateActivationKey()" class="w-full bg-secondary hover:bg-amber-600 text-white font-bold py-2.5 rounded-xl transition text-sm">
-                    توليد كود التفعيل السنوي
-                </button>
-
-                <div id="generatedKeyContainer" class="hidden mt-4 p-3 bg-gray-50 border rounded-xl">
-                    <p class="text-xs text-gray-500 mb-1">كود التفعيل المتولد للعميل:</p>
-                    <div class="flex items-center gap-2">
-                        <input type="text" id="outputKey" readonly class="w-full p-2 bg-white border rounded font-mono text-xs text-primary font-bold">
-                        <button onclick="copyGeneratedKey()" class="bg-primary text-white px-3 py-2 rounded text-xs font-bold">نسخ</button>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">المبلغ والقيمة</label>
+                        <input type="number" id="voucherAmount" placeholder="0.00" class="w-full p-2.5 border rounded-xl text-sm outline-none">
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- نافذة نسخ رابط التشغيل -->
-    <div id="linkModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 text-center">
-            <h3 class="font-bold text-lg text-primary mb-2"><i class="fa-solid fa-link"></i> رابط التشغيل الفوري للعملاء</h3>
-            <p class="text-xs text-gray-500 mb-4">انسخ هذا الرابط وأرسله لعملائك عبر الواتساب:</p>
-            <input type="text" id="currentAppLink" readonly class="w-full p-2.5 border rounded-xl text-xs font-mono bg-gray-50 text-center mb-4">
-            <div class="flex gap-2">
-                <button onclick="copyAppLink()" class="flex-grow bg-primary text-white py-2.5 rounded-xl font-bold text-sm">نسخ الرابط</button>
-                <button onclick="closeLinkModal()" class="bg-gray-200 text-gray-700 py-2.5 px-4 rounded-xl font-bold text-sm">إغلاق</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- سكريبت النظام والتشغيل -->
-    <script>
-        const DEVELOPER_WHATSAPP = "+963937288934";
-        let hardwareId = localStorage.getItem('smh_hardware_id');
-        if (!hardwareId) {
-            hardwareId = 'SMH-' + Math.random().toString(36).substring(2, 8).toUpperCase();
-            localStorage.setItem('smh_hardware_id', hardwareId);
-        }
-
-        let db = {
-            items: JSON.parse(localStorage.getItem('smh_items')) || [
-                { id: 1, name: 'طابعة حرارية POS', stock: 15, price: 85, barcode: '1001' },
-                { id: 2, name: 'قارئ باركود لاسلكي', stock: 25, price: 35, barcode: '1002' }
-            ],
-            partners: JSON.parse(localStorage.getItem('smh_partners')) || [
-                { id: 1, name: 'شركة النور للتجارة', type: 'customer', phone: '0912345678', balance: 0 },
-                { id: 2, name: 'مؤسسة الحلول الرقمية', type: 'supplier', phone: '0987654321', balance: 0 }
-            ],
-            invoices: JSON.parse(localStorage.getItem('smh_invoices')) || []
-        };
-
-        let currentInvoiceItems = [];
-
-        function checkActivationStatus() {
-            document.getElementById('displayHardwareId').innerText = hardwareId;
-            const msg = encodeURIComponent(`مرحباً، أرغب بتفعيل نظام "SMH سريع وامن" لمحلي. معرّف جهازي هو: ${hardwareId}`);
-            document.getElementById('whatsappSupportBtn').href = `https://wa.me/${DEVELOPER_WHATSAPP}?text=${msg}`;
-
-            const isActivated = localStorage.getItem('smh_is_activated') === 'true';
-            if (isActivated) {
-                document.getElementById('activationOverlay').classList.add('hidden');
-                return;
-            }
-
-            let trialStart = localStorage.getItem('smh_trial_start');
-            if (!trialStart) {
-                trialStart = new Date().getTime();
-                localStorage.setItem('smh_trial_start', trialStart);
-            }
-
-            const now = new Date().getTime();
-            const elapsedDays = (now - trialStart) / (1000 * 60 * 60 * 24);
-            const remainingDays = Math.max(0, Math.ceil(10 - elapsedDays));
-
-            if (remainingDays > 0) {
-                document.getElementById('trialText').innerText = `لديك فترة تجريبية مجانية متبقية: ${remainingDays} أيام`;
-                document.getElementById('activationOverlay').classList.remove('hidden');
-            } else {
-                document.getElementById('trialText').innerText = `انتهت الفترة التجريبية المجانية (10 أيام). يرجى التفعيل.`;
-                document.getElementById('trialBtn').style.display = 'none';
-                document.getElementById('activationOverlay').classList.remove('hidden');
-            }
-        }
-
-        function startFreeTrial() {
-            document.getElementById('activationOverlay').classList.add('hidden');
-        }
-
-        function activateApp() {
-            const inputKey = document.getElementById('activationCodeInput').value.trim();
-            const validKey = 'KEY-' + hardwareId + '-SMH2026';
-            if (inputKey === validKey) {
-                localStorage.setItem('smh_is_activated', 'true');
-                alert('تم تفعيل البرنامج بنجاح لمدة سنة كاملة!');
-                document.getElementById('activationOverlay').classList.add('hidden');
-            } else {
-                alert('كود التفعيل غير صحيح! يرجى التواصل عبر الواتساب للحصول على الكود.');
-            }
-        }
-
-        // الطريقة السرية لفتح لوحة المطور: اضغط مرتين (Double Click) على شعار المؤسسة في الشريط العلوي وأدخل كلمة المرور (88934)
-        function openDeveloperModalSecure() {
-            const pin = prompt('أدخل كلمة مرور المطور الخاصة بك:');
-            if (pin === '88934') {
-                document.getElementById('developerModal').classList.remove('hidden');
-            } else if (pin !== null) {
-                alert('كلمة المرور غير صحيحة!');
-            }
-        }
-        function closeDeveloperModal() { document.getElementById('developerModal').classList.add('hidden'); }
-        
-        function generateActivationKey() {
-            let targetId = document.getElementById('devTargetHardwareId').value.trim().toUpperCase();
-            if (!targetId) {
-                alert('يرجى إدخال معرّف الجهاز الخاص بالعميل');
-                return;
-            }
-            const generated = 'KEY-' + targetId + '-SMH2026';
-            document.getElementById('outputKey').value = generated;
-            document.getElementById('generatedKeyContainer').classList.remove('hidden');
-        }
-
-        function copyGeneratedKey() {
-            const keyInput = document.getElementById('outputKey');
-            keyInput.select();
-            navigator.clipboard.writeText(keyInput.value);
-            alert('تم نسخ كود التفعيل بنجاح!');
-        }
-
-        function showLinkModal() {
-            document.getElementById('currentAppLink').value = window.location.href;
-            document.getElementById('linkModal').classList.remove('hidden');
-        }
-        function closeLinkModal() { document.getElementById('linkModal').classList.add('hidden'); }
-        function copyAppLink() {
-            const linkInput = document.getElementById('currentAppLink');
-            linkInput.select();
-            navigator.clipboard.writeText(linkInput.value);
-            alert('تم نسخ الرابط بنجاح!');
-        }
-
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('border-primary', 'text-primary');
-                btn.classList.add('border-transparent', 'text-gray-500');
-            });
-            document.getElementById('section-' + tabId).classList.remove('hidden');
-            const activeBtn = document.getElementById('tab-' + tabId);
-            activeBtn.classList.remove('border-transparent', 'text-gray-500');
-            activeBtn.classList.add('border-primary', 'text-primary');
-        }
-
-        function saveData() {
-            localStorage.setItem('smh_items', JSON.stringify(db.items));
-            localStorage.setItem('smh_partners', JSON.stringify(db.partners));
-            localStorage.setItem('smh_invoices', JSON.stringify(db.invoices));
-            updateDashboardStats();
-        }
-
-        function updateDashboardStats() {
-            document.getElementById('statPartners').innerText = db.partners.length;
-            document.getElementById('statItems').innerText = db.items.length;
-            
-            let totalSales = db.invoices.reduce((sum, inv) => sum + inv.total, 0);
-            document.getElementById('statSalesUSD').innerText = '$' + totalSales.toFixed(2);
-
-            let partnerSelect = document.getElementById('invoicePartner');
-            partnerSelect.innerHTML = db.partners.map(p => `<option value="${p.id}">${p.name} (${p.type === 'customer' ? 'عميل' : 'مورد'})</option>`).join('');
-
-            let itemSelect = document.getElementById('posItemSelect');
-            itemSelect.innerHTML = db.items.map(i => `<option value="${i.id}">${i.name} - السعر: $${i.price}</option>`).join('');
-
-            renderItemsTable();
-            renderPartnersTable();
-        }
-
-        function addNewItem() {
-            const name = document.getElementById('newItemName').value.trim();
-            const stock = parseFloat(document.getElementById('newItemStock').value) || 0;
-            const price = parseFloat(document.getElementById('newItemPrice').value) || 0;
-            const barcode = document.getElementById('newItemBarcode').value.trim() || 'N/A';
-
-            if (!name) { alert('يرجى إدخال اسم المادة'); return; }
-
-            db.items.push({ id: Date.now(), name, stock, price, barcode });
-            saveData();
-            document.getElementById('newItemName').value = '';
-            document.getElementById('newItemStock').value = '';
-            document.getElementById('newItemPrice').value = '';
-            document.getElementById('newItemBarcode').value = '';
-            alert('تم إضافة المادة بنجاح');
-        }
-
-        function renderItemsTable() {
-            const tbody = document.getElementById('itemsTableBody');
-            if (db.items.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-400">لا توجد مواد مضافة</td></tr>`;
-                return;
-            }
-            tbody.innerHTML = db.items.map(item => `
-                <tr>
-                    <td class="p-3 font-bold">${item.name}</td>
-                    <td class="p-3">${item.stock} قطعة</td>
-                    <td class="p-3 text-gray-500">1 صندوق = 12 قطعة</td>
-                    <td class="p-3 text-primary font-bold">$${item.price}</td>
-                    <td class="p-3 font-mono">${item.barcode}</td>
-                    <td class="p-3"><button onclick="deleteItem(${item.id})" class="text-rose-500 hover:text-rose-700 text-xs"><i class="fa-solid fa-trash"></i></button></td>
-                </tr>
-            `).join('');
-        }
-
-        function deleteItem(id) {
-            db.items = db.items.filter(i => i.id !== id);
-            saveData();
-        }
-
-        function addNewPartner() {
-            const name = document.getElementById('partnerName').value.trim();
-            const type = document.getElementById('partnerType').value;
-            const phone = document.getElementById('partnerPhone').value.trim();
-
-            if (!name) { alert('يرجى إدخال اسم الجهة'); return; }
-
-            db.partners.push({ id: Date.now(), name, type, phone, balance: 0 });
-            saveData();
-            document.getElementById('partnerName').value = '';
-            document.getElementById('partnerPhone').value = '';
-            alert('تم حفظ الجهة بنجاح');
-        }
-
-        function renderPartnersTable() {
-            const tbody = document.getElementById('partnersTableBody');
-            if (db.partners.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-400">لا توجد جهات مسجلة</td></tr>`;
-                return;
-            }
-            tbody.innerHTML = db.partners.map(p => `
-                <tr>
-                    <td class="p-3 font-bold">${p.name}</td>
-                    <td class="p-3"><span class="px-2 py-1 rounded text-xs ${p.type === 'customer' ? 'bg-blue-50 text-primary' : 'bg-amber-50 text-amber-700'}">${p.type === 'customer' ? 'عميل' : 'مورد'}</span></td>
-                    <td class="p-3">${p.phone || '-'}</td>
-                    <td class="p-3 font-bold text-emerald-600">$${p.balance.toFixed(2)}</td>
-                    <td class="p-3"><button onclick="deletePartner(${p.id})" class="text-rose-500 hover:text-rose-700 text-xs"><i class="fa-solid fa-trash"></i></button></td>
-                </tr>
-            `).join('');
-        }
-
-        function deletePartner(id) {
-            db.partners = db.partners.filter(p => p.id !== id);
-            saveData();
-        }
-
-        function addItemToInvoice() {
-            const itemId = parseInt(document.getElementById('posItemSelect').value);
-            const qty = parseFloat(document.getElementById('posItemQty').value) || 1;
-            const item = db.items.find(i => i.id === itemId);
-            if (!item) return;
-
-            const existing = currentInvoiceItems.find(i => i.id === itemId);
-            if (existing) {
-                existing.qty += qty;
-            } else {
-                currentInvoiceItems.push({ id: item.id, name: item.name, price: item.price, qty: qty });
-            }
-            renderInvoiceItems();
-        }
-
-        function renderInvoiceItems() {
-            const tbody = document.getElementById('invoiceItemsTable');
-            if (currentInvoiceItems.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-400">لا توجد مواد مضافة بالفاتورة</td></tr>`;
-                calculateInvoiceTotals();
-                return;
-            }
-            tbody.innerHTML = currentInvoiceItems.map((item, index) => `
-                <tr>
-                    <td class="p-3 font-bold">${item.name}</td>
-                    <td class="p-3"><input type="number" value="${item.qty}" min="1" onchange="updateInvoiceQty(${index}, this.value)" class="w-16 p-1 border rounded text-center text-sm"></td>
-                    <td class="p-3">$${item.price}</td>
-                    <td class="p-3 font-bold">$${(item.price * item.qty).toFixed(2)}</td>
-                    <td class="p-3"><button onclick="removeInvoiceItem(${index})" class="text-rose-500 hover:text-rose-700"><i class="fa-solid fa-trash"></i></button></td>
-                </tr>
-            `).join('');
-            calculateInvoiceTotals();
-        }
-
-        function updateInvoiceQty(index, qty) {
-            currentInvoiceItems[index].qty = parseFloat(qty) || 1;
-            calculateInvoiceTotals();
-        }
-
-        function removeInvoiceItem(index) {
-            currentInvoiceItems.splice(index, 1);
-            renderInvoiceItems();
-        }
-
-        function calculateInvoiceTotals() {
-            let subtotal = currentInvoiceItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
-            let discount = parseFloat(document.getElementById('invDiscount').value) || 0;
-            let total = Math.max(0, subtotal - discount);
-
-            document.getElementById('invSubtotal').innerText = '$' + subtotal.toFixed(2);
-            document.getElementById('invTotal').innerText = '$' + total.toFixed(2);
-        }
-
-        function saveInvoice() {
-            if (currentInvoiceItems.length === 0) { alert('الفاتورة فارغة'); return; }
-            const partnerId = document.getElementById('invoicePartner').value;
-            const currency = document.getElementById('invoiceCurrency').value;
-            const type = document.getElementById('invoiceType').value;
-            
-            let total = currentInvoiceItems.reduce((sum, item) => sum + (item.price * item.qty), 0) - (parseFloat(document.getElementById('invDiscount').value) || 0);
-
-            db.invoices.push({
-                id: Date.now(),
-                partnerId,
-                currency,
-                type,
-                items: [...currentInvoiceItems],
-                total
-            });
-
-            currentInvoiceItems.forEach(invItem => {
-                let stockItem = db.items.find(i => i.id === invItem.id);
-                if (stockItem) {
-                    if (type === 'sale') stockItem.stock -= invItem.qty;
-                    else stockItem.stock += invItem.qty;
-                }
-            });
-
-            saveData();
-            currentInvoiceItems = [];
-            renderInvoiceItems();
-            document.getElementById('invDiscount').value = '0';
-            alert('تم حفظ وترحيل الفاتورة بنجاح!');
-        }
-
-        function printInvoice() {
-            if (currentInvoiceItems.length === 0) { alert('لا توجد فاتورة للطباعة'); return; }
-            window.print();
-        }
-
-        window.onload = function() {
-            checkActivationStatus();
-            updateDashboardStats();
-        };
-    </script>
-</body>
-</html>
+                <div class="mb-4">
+                    <label class="block text-xs font-semibold text-
