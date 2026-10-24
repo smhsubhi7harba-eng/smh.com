@@ -132,7 +132,7 @@
             <button onclick="switchTab('partners')" id="tab-partners" class="tab-btn px-4 py-2.5 font-bold text-sm border-b-2 border-transparent text-gray-500 hover:text-primary transition whitespace-nowrap">العملاء والموردين</button>
         </div>
 
-        <!-- قسم نقطة البيع والفواتير (تشمل مبيعات، مشتريات، مرتجع بيع، مرتجع شراء، وعرض سعر) -->
+        <!-- قسم نقطة البيع والفواتير -->
         <div id="section-pos" class="tab-content grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="lg:col-span-2 bg-white p-5 rounded-2xl shadow-sm">
                 <h3 class="font-bold text-base text-primary mb-4 flex items-center gap-2"><i class="fa-solid fa-cart-shopping"></i> نظام الفواتير وعروض الأسعار</h3>
@@ -331,72 +331,4 @@
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 mb-1">القطعة (الوحدة الصغرى)</label>
-                        <input type="number" id="newItemStock" placeholder="الرصيد بالقطع" class="w-full p-2.5 border rounded-xl text-sm outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">سعر المبيع ($)</label>
-                        <input type="number" id="newItemPrice" placeholder="السعر" class="w-full p-2.5 border rounded-xl text-sm outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">الباركود</label>
-                        <input type="text" id="newItemBarcode" placeholder="الباركود" class="w-full p-2.5 border rounded-xl text-sm outline-none">
-                    </div>
-                    <div class="flex items-end">
-                        <button onclick="addNewItem()" class="w-full bg-primary hover:bg-blue-900 text-white font-bold py-2.5 rounded-xl text-sm transition">حفظ المادة</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white p-5 rounded-2xl shadow-sm">
-                <h3 class="font-bold text-base text-primary mb-4">قائمة المواد المخزنية</h3>
-                <div class="overflow-x-auto border rounded-xl">
-                    <table class="w-full text-right text-sm">
-                        <thead class="bg-gray-100 text-gray-600 text-xs">
-                            <tr>
-                                <th class="p-3">اسم المادة</th>
-                                <th class="p-3">الرصيد بالقطع</th>
-                                <th class="p-3">معامل التعبئة (دزينة/صندوق)</th>
-                                <th class="p-3">سعر المبيع ($)</th>
-                                <th class="p-3">الباركود</th>
-                                <th class="p-3">إجراءات</th>
-                            </tr>
-                        </thead>
-                        <tbody id="itemsTableBody" class="divide-y"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- قسم العملاء والموردين -->
-        <div id="section-partners" class="tab-content hidden space-y-6">
-            <div class="bg-white p-5 rounded-2xl shadow-sm">
-                <h3 class="font-bold text-base text-primary mb-4 flex items-center gap-2"><i class="fa-solid fa-user-plus"></i> إضافة عميل أو مورد جديد</h3>
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">اسم العميل / المورد</label>
-                        <input type="text" id="partnerName" placeholder="الاسم الكامل" class="w-full p-2.5 border rounded-xl text-sm outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">التصنيف</label>
-                        <select id="partnerType" class="w-full p-2.5 border rounded-xl text-sm outline-none">
-                            <option value="customer">عميل (زبون)</option>
-                            <option value="supplier">مورد</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">رقم الهاتف / الواتساب</label>
-                        <input type="text" id="partnerPhone" placeholder="رقم الهاتف" class="w-full p-2.5 border rounded-xl text-sm outline-none">
-                    </div>
-                    <div class="flex items-end">
-                        <button onclick="addNewPartner()" class="w-full bg-primary hover:bg-blue-900 text-white font-bold py-2.5 rounded-xl text-sm transition">حفظ الجهة</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white p-5 rounded-2xl shadow-sm">
-                <h3 class="font-bold text-base text-primary mb-4">دليل العملاء والموردين</h3>
-                <div class="overflow-x-auto border rounded-xl">
-                    <table class="w-full text-right text-sm">
-                        <thead class="bg-gray-100 text-gray-600 text-xs">
-                            <tr>
-                                <th class="p-3">ال
+                        <input type="number" id="newItemStock" placeholder="
