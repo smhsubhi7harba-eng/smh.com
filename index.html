@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMH سريع وامن - نظام المحاسبة الشامل</title>
+    <title>SMH سريع وامن - نظام المحاسبة والمستودعات</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -11,264 +11,689 @@
             theme: {
                 extend: {
                     colors: {
-                        royal: '#1e3a8a',
-                        gold: '#d97706',
+                        primary: '#1e3a8a', /* أزرق ملكي */
+                        secondary: '#d97706', /* ذهبي دافئ */
+                        darkbg: '#0f172a',
                     }
                 }
             }
         }
     </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+        body { font-family: 'Cairo', sans-serif; }
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; color: black !important; }
+        }
+    </style>
 </head>
-<body class="bg-gray-100 font-sans text-gray-900">
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
 
-    <!-- شاشة قفل أو تفعيل البرنامج / التجربة المجانية -->
-    <div id="lockScreen" class="fixed inset-0 bg-royal/90 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 text-center border-t-4 border-gold">
-            <div class="w-20 h-20 bg-royal/10 rounded-full flex items-center justify-center mx-auto mb-4 text-royal text-3xl font-bold">
-                <i class="fa-solid fa-shield-halved text-gold"></i>
+    <!-- شاشة التحقق من التفعيل / التجربة المجانية -->
+    <div id="activationOverlay" class="fixed inset-0 bg-darkbg bg-opacity-95 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 text-center border-t-4 border-secondary">
+            <div class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 text-primary text-3xl font-bold">
+                <i class="fa-solid fa-shield-halved"></i>
             </div>
-            <h2 class="text-2xl font-bold text-royal mb-2">SMH سريع وامن</h2>
-            <p class="text-gray-600 mb-4 text-sm">نظام إدارة المحاسبة والمستودعات المتعدد العملات</p>
+            <h2 class="text-2xl font-bold text-primary mb-2">SMH سريع وامن</h2>
+            <p class="text-sm text-gray-600 mb-4">نظام المحاسبة والمستودعات المتطور</p>
             
-            <div id="trialStatus" class="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4 text-sm text-amber-800">
-                <i class="fa-solid fa-clock ml-1"></i> الفترة التجريبية النشطة: <span id="daysLeft" class="font-bold">10</span> أيام متبقية
+            <div id="trialInfoBox" class="bg-amber-50 border border-secondary/30 rounded-xl p-3 mb-4 text-xs text-amber-800">
+                <span id="trialText" class="font-bold"></span>
+            </div>
+
+            <div class="bg-gray-100 p-3 rounded-lg mb-4 text-left dir-ltr flex justify-between items-center">
+                <span class="text-xs text-gray-500">معرّف الجهاز (Hardware ID):</span>
+                <span id="displayHardwareId" class="font-mono font-bold text-primary text-sm"></span>
             </div>
 
             <div class="space-y-3">
-                <button onclick="startFreeTrial()" class="w-full bg-gold hover:bg-amber-700 text-white font-bold py-3 rounded-xl transition shadow-md">
-                    <i class="fa-solid fa-rocket ml-2"></i> الدخول المجاني (تجربة 10 أيام)
+                <button onclick="startFreeTrial()" id="trialBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl transition shadow-lg text-sm flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-gift"></i> الدخول مجاناً لمدة 10 أيام
                 </button>
-                
-                <div class="border-t pt-3 mt-3">
-                    <p class="text-xs text-gray-500 mb-2">لديك كود تفعيل سنوي؟ أدخله هنا:</p>
-                    <div class="flex gap-2">
-                        <input type="text" id="activationKey" placeholder="أدخل كود التفعيل" class="flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-royal">
-                        <button onclick="activateApp()" class="bg-royal text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-900">تفعيل</button>
-                    </div>
+
+                <div class="border-t pt-3">
+                    <input type="text" id="activationCodeInput" placeholder="أدخل كود التفعيل السنوي هنا..." class="w-full px-4 py-2 border rounded-xl text-center font-mono text-sm mb-2 focus:ring-2 focus:ring-primary outline-none">
+                    <button onclick="activateApp()" class="w-full bg-primary hover:bg-blue-900 text-white font-bold py-2.5 px-4 rounded-xl transition text-sm">
+                        تفعيل البرنامج (سنوي)
+                    </button>
                 </div>
 
-                <a href="https://wa.me/963937288934?text=مرحباً، أريد طلب كود تفعيل سنوي لنظام SMH سريع وامن" target="_blank" class="block text-xs text-royal hover:underline mt-3">
-                    <i class="fa-brands fa-whatsapp text-green-600 ml-1"></i> اطلب كود التفعيل السنوي عبر الواتساب (0937288934)
+                <a id="whatsappSupportBtn" href="#" target="_blank" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2.5 px-4 rounded-xl transition text-sm flex items-center justify-center gap-2">
+                    <i class="fa-brands fa-whatsapp text-lg"></i> طلب تفعيل عبر الواتساب
                 </a>
             </div>
         </div>
     </div>
 
-    <!-- واجهة التطبيق الرئيسية -->
-    <div id="appContent" class="min-h-screen flex flex-col hidden">
-        <!-- شريط علوي -->
-        <header class="bg-royal text-white shadow-md">
-            <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-                <div class="flex items-center space-x-3 space-x-reverse">
-                    <div class="bg-gold text-white p-2 rounded-lg font-bold">SMH</div>
-                    <span class="text-lg font-bold">سريع وامن - المحاسبي</span>
+    <!-- الشريط العلوي -->
+    <header class="bg-primary text-white shadow-md sticky top-0 z-40">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3 space-x-reverse">
+                <div class="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center text-white font-bold text-xl shadow">
+                    <i class="fa-solid fa-cube"></i>
                 </div>
-                <div class="flex items-center space-x-2 space-x-reverse text-sm">
-                    <span class="bg-gold/25 px-3 py-1 rounded-full text-gold font-semibold border border-gold/40">نسخة مرخصة / تجريبية</span>
-                    <button onclick="logoutApp()" class="text-gray-300 hover:text-white px-2 py-1" title="قفل النظام"><i class="fa-solid fa-lock"></i></button>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight">SMH سريع وامن</h1>
+                    <span class="text-xs text-secondary font-semibold">مؤسسة Subhi Mahmoud Harba</span>
                 </div>
             </div>
-        </header>
-
-        <!-- المحتوى الرئيسي -->
-        <main class="container mx-auto px-4 py-6 flex-1 space-y-6">
-            <!-- المؤشرات المالية -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-white p-5 rounded-xl shadow-sm border-r-4 border-royal">
-                    <h3 class="text-gray-500 text-sm">إجمالي المبيعات العامة</h3>
-                    <p class="text-2xl font-bold text-royal mt-1" id="totalSalesDisplay">0.00 $</p>
-                </div>
-                <div class="bg-white p-5 rounded-xl shadow-sm border-r-4 border-gold">
-                    <h3 class="text-gray-500 text-sm">العملات المدعومة</h3>
-                    <p class="text-base font-bold text-gray-800 mt-1">دولار ($) - ليرة سورية (SYP) - تركي (TRY)</p>
-                </div>
-                <div class="bg-white p-5 rounded-xl shadow-sm border-r-4 border-green-600">
-                    <h3 class="text-gray-500 text-sm">حالة النظام والنسخ</h3>
-                    <p class="text-lg font-bold text-green-600 mt-1">متصل وآمن 100%</p>
-                </div>
+            
+            <div class="flex items-center gap-2">
+                <button onclick="openDeveloperModal()" class="bg-secondary hover:bg-amber-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 shadow">
+                    <i class="fa-solid fa-key"></i> لوحة المطور
+                </button>
+                <button onclick="showLinkModal()" class="bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                    <i class="fa-solid fa-link"></i> نسخ رابط التشغيل
+                </button>
             </div>
+        </div>
+    </header>
 
-            <!-- أقسام النظام المتقدمة -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- قسم إنشاء فاتورة جديدة -->
-                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-                    <h2 class="text-xl font-bold text-royal mb-4 flex items-center"><i class="fa-solid fa-file-invoice-dollar ml-2 text-gold"></i> تسجيل فاتورة مبيعات</h2>
-                    <div class="space-y-3">
-                        <div>
-                            <label class="block text-xs text-gray-600 mb-1">اسم العميل:</label>
-                            <input type="text" id="custName" placeholder="أدخل اسم العميل أو الزبون" class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-royal">
-                        </div>
-                        <div class="grid grid-cols-2 gap-2">
-                            <div>
-                                <label class="block text-xs text-gray-600 mb-1">المبلغ:</label>
-                                <input type="number" id="invoiceAmount" placeholder="0.00" class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-royal">
-                            </div>
-                            <div>
-                                <label class="block text-xs text-gray-600 mb-1">العملة:</label>
-                                <select id="invoiceCurr" class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-royal bg-white">
-                                    <option value="USD">دولار الأمريكي ($)</option>
-                                    <option value="SYP">ليرة سورية (SYP)</option>
-                                    <option value="TRY">ليرة تركية (TRY)</option>
-                                </select>
-                            </div>
-                        </div>
-                        <button onclick="addInvoice()" class="w-full bg-royal hover:bg-blue-900 text-white font-bold py-2.5 rounded-lg text-sm transition mt-2">
-                            <i class="fa-solid fa-plus ml-1"></i> حفظ وترحيل الفاتورة
-                        </button>
-                    </div>
+    <!-- المحتوى الرئيسي -->
+    <main class="container mx-auto px-4 py-6 flex-grow max-w-7xl">
+        
+        <!-- إحصائيات سريعة -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white p-4 rounded-2xl shadow-sm border-r-4 border-primary flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-gray-500">إجمالي المبيعات (USD)</p>
+                    <h3 id="statSalesUSD" class="text-xl font-bold text-primary mt-1">$0.00</h3>
                 </div>
+                <div class="w-10 h-10 rounded-xl bg-blue-50 text-primary flex items-center justify-center"><i class="fa-solid fa-dollar-sign"></i></div>
+            </div>
+            <div class="bg-white p-4 rounded-2xl shadow-sm border-r-4 border-secondary flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-gray-500">العملاء والموردون</p>
+                    <h3 id="statPartners" class="text-xl font-bold text-secondary mt-1">0</h3>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-amber-50 text-secondary flex items-center justify-center"><i class="fa-solid fa-users"></i></div>
+            </div>
+            <div class="bg-white p-4 rounded-2xl shadow-sm border-r-4 border-emerald-500 flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-gray-500">المواد في المستودع</p>
+                    <h3 id="statItems" class="text-xl font-bold text-emerald-600 mt-1">0</h3>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center"><i class="fa-solid fa-boxes-stacked"></i></div>
+            </div>
+            <div class="bg-white p-4 rounded-2xl shadow-sm border-r-4 border-indigo-500 flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-gray-500">العملة الافتراضية</p>
+                    <h3 class="text-xl font-bold text-indigo-600 mt-1">USD / SYP / TRY</h3>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center"><i class="fa-solid fa-coins"></i></div>
+            </div>
+        </div>
 
-                <!-- قسم إدارة العملاء والحسابات -->
-                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 flex flex-col justify-between">
+        <!-- التبويبات -->
+        <div class="flex border-b border-gray-200 mb-6 gap-2 overflow-x-auto">
+            <button onclick="switchTab('pos')" id="tab-pos" class="tab-btn px-5 py-2.5 font-bold text-sm border-b-2 border-primary text-primary transition">نقطة البيع والفواتير</button>
+            <button onclick="switchTab('items')" id="tab-items" class="tab-btn px-5 py-2.5 font-bold text-sm border-b-2 border-transparent text-gray-500 hover:text-primary transition">إدارة المستودع (3 وحدات)</button>
+            <button onclick="switchTab('partners')" id="tab-partners" class="tab-btn px-5 py-2.5 font-bold text-sm border-b-2 border-transparent text-gray-500 hover:text-primary transition">العملاء والموردين</button>
+            <button onclick="switchTab('accounts')" id="tab-accounts" class="tab-btn px-5 py-2.5 font-bold text-sm border-b-2 border-transparent text-gray-500 hover:text-primary transition">شجرة الحسابات</button>
+        </div>
+
+        <!-- قسم نقطة البيع -->
+        <div id="section-pos" class="tab-content grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 bg-white p-5 rounded-2xl shadow-sm">
+                <h3 class="font-bold text-base text-primary mb-4 flex items-center gap-2"><i class="fa-solid fa-cart-shopping"></i> إنشاء فاتورة جديدة</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
                     <div>
-                        <h2 class="text-xl font-bold text-royal mb-4 flex items-center"><i class="fa-solid fa-users ml-2 text-gold"></i> سجل العملاء والحركات</h2>
-                        <div class="bg-gray-50 rounded-lg p-3 max-h-48 overflow-y-auto border" id="invoicesList">
-                            <p class="text-gray-400 text-xs text-center py-6">لا توجد فواتير مسجلة حتى الآن</p>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">نوع الفاتورة</label>
+                        <select id="invoiceType" class="w-full p-2.5 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary">
+                            <option value="sale">مبيعات</option>
+                            <option value="purchase">مشتريات</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">العميل / المورد</label>
+                        <select id="invoicePartner" class="w-full p-2.5 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary"></select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">العملة</label>
+                        <select id="invoiceCurrency" class="w-full p-2.5 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary">
+                            <option value="USD">دولار أمريكي ($)</option>
+                            <option value="SYP">ليرة سورية (SYP)</option>
+                            <option value="TRY">ليرة تركية (TRY)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">إضافة مادة للفاتورة</label>
+                    <div class="flex gap-2">
+                        <select id="posItemSelect" class="flex-grow p-2.5 border rounded-xl text-sm outline-none"></select>
+                        <input type="number" id="posItemQty" value="1" min="1" class="w-20 p-2.5 border rounded-xl text-sm text-center">
+                        <button onclick="addItemToInvoice()" class="bg-primary hover:bg-blue-900 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition">إضافة</button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto border rounded-xl">
+                    <table class="w-full text-right text-sm">
+                        <thead class="bg-gray-100 text-gray-600 text-xs">
+                            <tr>
+                                <th class="p-3">المادة</th>
+                                <th class="p-3">الكمية</th>
+                                <th class="p-3">السعر الفردي</th>
+                                <th class="p-3">الإجمالي</th>
+                                <th class="p-3">حذف</th>
+                            </tr>
+                        </thead>
+                        <tbody id="invoiceItemsTable" class="divide-y">
+                            <tr><td colspan="5" class="p-4 text-center text-gray-400">لا توجد مواد مضافة بالفاتورة</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ملخص الفاتورة والدفع -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm flex flex-col justify-between">
+                <div>
+                    <h3 class="font-bold text-base text-primary mb-4 flex items-center gap-2"><i class="fa-solid fa-file-invoice-dollar"></i> ملخص الفاتورة</h3>
+                    <div class="space-y-3 text-sm">
+                        <div class="flex justify-between py-2 border-b">
+                            <span class="text-gray-500">المجموع الجزئي:</span>
+                            <span id="invSubtotal" class="font-bold">0.00</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b">
+                            <span class="text-gray-500">الخصم:</span>
+                            <input type="number" id="invDiscount" value="0" oninput="calculateInvoiceTotals()" class="w-24 p-1 border rounded text-center text-sm">
+                        </div>
+                        <div class="flex justify-between py-2 text-base font-bold text-primary">
+                            <span>الصافي الإجمالي:</span>
+                            <span id="invTotal">0.00</span>
                         </div>
                     </div>
-                    <div class="pt-4 border-t mt-4 flex gap-2">
-                        <button onclick="exportData()" class="flex-1 bg-gold hover:bg-amber-700 text-white py-2 rounded-lg text-xs font-bold transition">
-                            <i class="fa-solid fa-file-excel ml-1"></i> تصدير البيانات
-                        </button>
-                        <button onclick="clearData()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-2 rounded-lg text-xs font-bold transition">
-                            مسح السجل
-                        </button>
+                </div>
+
+                <div class="mt-6 space-y-3">
+                    <button onclick="saveInvoice()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl transition shadow text-sm flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-check"></i> حفظ وترحيل الفاتورة
+                    </button>
+                    <button onclick="printInvoice()" class="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-2.5 rounded-xl transition text-sm flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-print"></i> معاينة وطباعة الفاتورة
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- قسم المستودع والمواد -->
+        <div id="section-items" class="tab-content hidden space-y-6">
+            <div class="bg-white p-5 rounded-2xl shadow-sm">
+                <h3 class="font-bold text-base text-primary mb-4 flex items-center gap-2"><i class="fa-solid fa-boxes-stacked"></i> إضافة مادة جديدة (نظام 3 وحدات: قطعة، دزينة، صندوق)</h3>
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-3 mb-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">اسم المادة</label>
+                        <input type="text" id="newItemName" placeholder="مثال: طابعة حرارية" class="w-full p-2.5 border rounded-xl text-sm outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">القطعة (الوحدة الصغرى)</label>
+                        <input type="number" id="newItemStock" placeholder="الرصيد بالقطع" class="w-full p-2.5 border rounded-xl text-sm outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">سعر المبيع ($)</label>
+                        <input type="number" id="newItemPrice" placeholder="السعر" class="w-full p-2.5 border rounded-xl text-sm outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">الباركود</label>
+                        <input type="text" id="newItemBarcode" placeholder="الباركود" class="w-full p-2.5 border rounded-xl text-sm outline-none">
+                    </div>
+                    <div class="flex items-end">
+                        <button onclick="addNewItem()" class="w-full bg-primary hover:bg-blue-900 text-white font-bold py-2.5 rounded-xl text-sm transition">حفظ المادة</button>
                     </div>
                 </div>
             </div>
 
-            <!-- اختصارات سريعة إضافية -->
-            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-                <h2 class="text-lg font-bold text-royal mb-3"><i class="fa-solid fa-toolbox ml-2 text-gold"></i> أدوات المحاسبة والمستودعات الإضافية</h2>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    <button onclick="alert('خاصية سندات القبض والصرف مفعلة وجاهزة.')" class="bg-gray-50 hover:bg-royal hover:text-white border p-3 rounded-xl text-center transition text-sm font-semibold text-gray-700">
-                        <i class="fa-solid fa-money-bill-transfer mb-1 block text-gold text-lg"></i> سند قبض / صرف
-                    </button>
-                    <button onclick="alert('شجرة الحسابات العامة مرتبة ومترابطة.')" class="bg-gray-50 hover:bg-royal hover:text-white border p-3 rounded-xl text-center transition text-sm font-semibold text-gray-700">
-                        <i class="fa-solid fa-sitemap mb-1 block text-gold text-lg"></i> شجرة الحسابات
-                    </button>
-                    <button onclick="alert('إدارة المخزن والمستودع تعمل بانتظام.')" class="bg-gray-50 hover:bg-royal hover:text-white border p-3 rounded-xl text-center transition text-sm font-semibold text-gray-700">
-                        <i class="fa-solid fa-boxes-stacked mb-1 block text-gold text-lg"></i> جرد المستودع
-                    </button>
-                    <a href="https://wa.me/963937288934?text=مرحباً، لدي استفسار حول نظام SMH سريع وامن" target="_blank" class="bg-emerald-50 hover:bg-emerald-600 hover:text-white border border-emerald-200 p-3 rounded-xl text-center transition text-sm font-semibold text-emerald-800 flex flex-col items-center justify-center">
-                        <i class="fa-brands fa-whatsapp mb-1 text-green-600 text-lg"></i> الدعم الفني
-                    </a>
+            <div class="bg-white p-5 rounded-2xl shadow-sm">
+                <h3 class="font-bold text-base text-primary mb-4">قائمة المواد المخزنية</h3>
+                <div class="overflow-x-auto border rounded-xl">
+                    <table class="w-full text-right text-sm">
+                        <thead class="bg-gray-100 text-gray-600 text-xs">
+                            <tr>
+                                <th class="p-3">اسم المادة</th>
+                                <th class="p-3">الرصيد بالقطع</th>
+                                <th class="p-3">معامل التعبئة (دزينة/صندوق)</th>
+                                <th class="p-3">سعر المبيع ($)</th>
+                                <th class="p-3">الباركود</th>
+                                <th class="p-3">إجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="itemsTableBody" class="divide-y"></tbody>
+                    </table>
                 </div>
             </div>
-        </main>
+        </div>
+
+        <!-- قسم العملاء والموردين -->
+        <div id="section-partners" class="tab-content hidden space-y-6">
+            <div class="bg-white p-5 rounded-2xl shadow-sm">
+                <h3 class="font-bold text-base text-primary mb-4 flex items-center gap-2"><i class="fa-solid fa-user-plus"></i> إضافة عميل أو مورد جديد</h3>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">اسم العميل / المورد</label>
+                        <input type="text" id="partnerName" placeholder="الاسم الكامل" class="w-full p-2.5 border rounded-xl text-sm outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">التصنيف</label>
+                        <select id="partnerType" class="w-full p-2.5 border rounded-xl text-sm outline-none">
+                            <option value="customer">عميل (زبون)</option>
+                            <option value="supplier">مورد</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">رقم الهاتف / الواتساب</label>
+                        <input type="text" id="partnerPhone" placeholder="رقم الهاتف" class="w-full p-2.5 border rounded-xl text-sm outline-none">
+                    </div>
+                    <div class="flex items-end">
+                        <button onclick="addNewPartner()" class="w-full bg-primary hover:bg-blue-900 text-white font-bold py-2.5 rounded-xl text-sm transition">حفظ الجهة</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl shadow-sm">
+                <h3 class="font-bold text-base text-primary mb-4">دليل العملاء والموردين</h3>
+                <div class="overflow-x-auto border rounded-xl">
+                    <table class="w-full text-right text-sm">
+                        <thead class="bg-gray-100 text-gray-600 text-xs">
+                            <tr>
+                                <th class="p-3">الاسم</th>
+                                <th class="p-3">التصنيف</th>
+                                <th class="p-3">الهاتف</th>
+                                <th class="p-3">الرصيد الحالي</th>
+                                <th class="p-3">إجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="partnersTableBody" class="divide-y"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- قسم شجرة الحسابات -->
+        <div id="section-accounts" class="tab-content hidden space-y-6">
+            <div class="bg-white p-5 rounded-2xl shadow-sm">
+                <h3 class="font-bold text-base text-primary mb-4 flex items-center gap-2"><i class="fa-solid fa-sitemap"></i> شجرة الحسابات المحاسبية الهرمية</h3>
+                <div class="space-y-3">
+                    <div class="p-3 bg-blue-50 border border-blue-200 rounded-xl font-bold text-primary">📁 1. الأصول (الأموال، الصناديق، البنوك، المستودعات، العملاء)</div>
+                    <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl font-bold text-amber-800">📁 2. الخصوم وحقوق الملكية (الموردين، رأس المال)</div>
+                    <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl font-bold text-emerald-800">📁 3. الإيرادات (المبيعات، الإيرادات المتنوعة)</div>
+                    <div class="p-3 bg-rose-50 border border-rose-200 rounded-xl font-bold text-rose-800">📁 4. المصاريف (مصاريف تشغيلية، رواتب، إيجارات)</div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- نافذة لوحة تحكم المطور -->
+    <div id="developerModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6">
+            <div class="flex justify-between items-center mb-4 border-b pb-3">
+                <h3 class="font-bold text-lg text-primary"><i class="fa-solid fa-key"></i> لوحة المطور - مولد أكواد التفعيل</h3>
+                <button onclick="closeDeveloperModal()" class="text-gray-400 hover:text-gray-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">أدخل معرّف جهاز العميل (Hardware ID)</label>
+                    <input type="text" id="devTargetHardwareId" placeholder="مثال: SMH-DEV-XXXX" class="w-full p-2.5 border rounded-xl text-sm font-mono uppercase outline-none focus:ring-2 focus:ring-secondary">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">اسم العميل</label>
+                    <input type="text" id="devClientName" placeholder="اسم صاحب المنشأة أو المحل" class="w-full p-2.5 border rounded-xl text-sm outline-none">
+                </div>
+                <button onclick="generateActivationKey()" class="w-full bg-secondary hover:bg-amber-600 text-white font-bold py-2.5 rounded-xl transition text-sm">
+                    توليد كود التفعيل السنوي
+                </button>
+
+                <div id="generatedKeyContainer" class="hidden mt-4 p-3 bg-gray-50 border rounded-xl">
+                    <p class="text-xs text-gray-500 mb-1">كود التفعيل المتولد للعميل:</p>
+                    <div class="flex items-center gap-2">
+                        <input type="text" id="outputKey" readonly class="w-full p-2 bg-white border rounded font-mono text-xs text-primary font-bold">
+                        <button onclick="copyGeneratedKey()" class="bg-primary text-white px-3 py-2 rounded text-xs font-bold">نسخ</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <script>
-        window.onload = function() {
-            const isActivated = localStorage.getItem('smh_activated');
-            const trialStart = localStorage.getItem('smh_trial_start');
+    <!-- نافذة نسخ رابط التشغيل -->
+    <div id="linkModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 text-center">
+            <h3 class="font-bold text-lg text-primary mb-2"><i class="fa-solid fa-link"></i> رابط التشغيل الفوري للعملاء</h3>
+            <p class="text-xs text-gray-500 mb-4">انسخ هذا الرابط وأرسله لعملائك عبر الواتساب:</p>
+            <input type="text" id="currentAppLink" readonly class="w-full p-2.5 border rounded-xl text-xs font-mono bg-gray-50 text-center mb-4">
+            <div class="flex gap-2">
+                <button onclick="copyAppLink()" class="flex-grow bg-primary text-white py-2.5 rounded-xl font-bold text-sm">نسخ الرابط</button>
+                <button onclick="closeLinkModal()" class="bg-gray-200 text-gray-700 py-2.5 px-4 rounded-xl font-bold text-sm">إغلاق</button>
+            </div>
+        </div>
+    </div>
 
-            if (isActivated === 'true') {
-                document.getElementById('lockScreen').classList.add('hidden');
-                document.getElementById('appContent').classList.remove('hidden');
-                loadInvoices();
+    <!-- سكريبت النظام والتشغيل -->
+    <script>
+        // إعدادات وبيانات النظام
+        const DEVELOPER_WHATSAPP = "+963937288934";
+        let hardwareId = localStorage.getItem('smh_hardware_id');
+        if (!hardwareId) {
+            hardwareId = 'SMH-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+            localStorage.setItem('smh_hardware_id', hardwareId);
+        }
+
+        let db = {
+            items: JSON.parse(localStorage.getItem('smh_items')) || [
+                { id: 1, name: 'طابعة حرارية POS', stock: 15, price: 85, barcode: '1001' },
+                { id: 2, name: 'قارئ باركود لاسلكي', stock: 25, price: 35, barcode: '1002' }
+            ],
+            partners: JSON.parse(localStorage.getItem('smh_partners')) || [
+                { id: 1, name: 'شركة النور للتجارة', type: 'customer', phone: '0912345678', balance: 0 },
+                { id: 2, name: 'مؤسسة الحلول الرقمية', type: 'supplier', phone: '0987654321', balance: 0 }
+            ],
+            invoices: JSON.parse(localStorage.getItem('smh_invoices')) || []
+        };
+
+        let currentInvoiceItems = [];
+
+        // التحقق من حالة التفعيل والفترة التجريبية
+        function checkActivationStatus() {
+            document.getElementById('displayHardwareId').innerText = hardwareId;
+            
+            // ضبط رابط الواتساب المباشر للمطور
+            const msg = encodeURIComponent(`مرحباً، أرغب بتفعيل نظام "SMH سريع وامن" لمحلي. معرّف جهازي هو: ${hardwareId}`);
+            document.getElementById('whatsappSupportBtn').href = `https://wa.me/${DEVELOPER_WHATSAPP}?text=${msg}`;
+
+            const isActivated = localStorage.getItem('smh_is_activated') === 'true';
+            if (isActivated) {
+                document.getElementById('activationOverlay').classList.add('hidden');
                 return;
             }
 
+            // التحقق من الفترة التجريبية (10 أيام)
+            let trialStart = localStorage.getItem('smh_trial_start');
             if (!trialStart) {
-                localStorage.setItem('smh_trial_start', new Date().getTime());
-                localStorage.setItem('smh_trial_days', '10');
-            } else {
-                const now = new Date().getTime();
-                const diffTime = now - parseInt(trialStart);
-                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-                const remaining = 10 - diffDays;
-
-                if (remaining > 0) {
-                    document.getElementById('daysLeft').innerText = remaining;
-                } else {
-                    document.getElementById('trialStatus').innerHTML = '<span class="text-red-600 font-bold">انتهت الفترة التجريبية، يرجى إدخال كود التفعيل السنوي.</span>';
-                }
+                trialStart = new Date().getTime();
+                localStorage.setItem('smh_trial_start', trialStart);
             }
-            loadInvoices();
-        };
+
+            const now = new Date().getTime();
+            const elapsedDays = (now - trialStart) / (1000 * 60 * 60 * 24);
+            const remainingDays = Math.max(0, Math.ceil(10 - elapsedDays));
+
+            if (remainingDays > 0) {
+                document.getElementById('trialText').innerText = `لديك فترة تجريبية مجانية متبقية: ${remainingDays} أيام`;
+                document.getElementById('activationOverlay').classList.remove('hidden');
+            } else {
+                document.getElementById('trialText').innerText = `انتهت الفترة التجريبية المجانية (10 أيام). يرجى التفعيل.`;
+                document.getElementById('trialBtn').style.display = 'none';
+                document.getElementById('activationOverlay').classList.remove('hidden');
+            }
+        }
 
         function startFreeTrial() {
-            document.getElementById('lockScreen').classList.add('hidden');
-            document.getElementById('appContent').classList.remove('hidden');
+            document.getElementById('activationOverlay').classList.add('hidden');
         }
 
         function activateApp() {
-            const key = document.getElementById('activationKey').value.trim();
-            if (key === 'SMH-2026-SECURE' || key.length > 4) {
-                localStorage.setItem('smh_activated', 'true');
+            const inputKey = document.getElementById('activationCodeInput').value.trim();
+            const validKey = 'KEY-' + hardwareId + '-SMH2026';
+            if (inputKey === validKey) {
+                localStorage.setItem('smh_is_activated', 'true');
                 alert('تم تفعيل البرنامج بنجاح لمدة سنة كاملة!');
-                document.getElementById('lockScreen').classList.add('hidden');
-                document.getElementById('appContent').classList.remove('hidden');
+                document.getElementById('activationOverlay').classList.add('hidden');
             } else {
-                alert('كود التفعيل غير صحيح. يرجى مراسلتنا عبر الواتساب للحصول على الكود.');
+                alert('كود التفعيل غير صحيح! يرجى التواصل عبر الواتساب للحصول على الكود الخاص بجهازك.');
             }
         }
 
-        function logoutApp() {
-            document.getElementById('lockScreen').classList.remove('hidden');
-            document.getElementById('appContent').classList.add('hidden');
-        }
-
-        function addInvoice() {
-            const name = document.getElementById('custName').value.trim();
-            const amount = document.getElementById('invoiceAmount').value.trim();
-            const curr = document.getElementById('invoiceCurr').value;
-
-            if(!name || !amount) {
-                alert('يرجى إدخال اسم العميل والمبلغ بشكل صحيح.');
+        // لوحة المطور
+        function openDeveloperModal() { document.getElementById('developerModal').classList.remove('hidden'); }
+        function closeDeveloperModal() { document.getElementById('developerModal').classList.add('hidden'); }
+        
+        function generateActivationKey() {
+            let targetId = document.getElementById('devTargetHardwareId').value.trim().toUpperCase();
+            if (!targetId) {
+                alert('يرجى إدخال معرّف الجهاز الخاص بالعميل');
                 return;
             }
-
-            let invoices = JSON.parse(localStorage.getItem('smh_invoices') || '[]');
-            invoices.push({name, amount, curr, date: new Date().toLocaleDateString('ar-SA')});
-            localStorage.setItem('smh_invoices', JSON.stringify(invoices));
-
-            document.getElementById('custName').value = '';
-            document.getElementById('invoiceAmount').value = '';
-            loadInvoices();
-            alert('تم تسجيل وترحيل الفاتورة بنجاح!');
+            const generated = 'KEY-' + targetId + '-SMH2026';
+            document.getElementById('outputKey').value = generated;
+            document.getElementById('generatedKeyContainer').classList.remove('hidden');
         }
 
-        function loadInvoices() {
-            let invoices = JSON.parse(localStorage.getItem('smh_invoices') || '[]');
-            const listContainer = document.getElementById('invoicesList');
+        function copyGeneratedKey() {
+            const keyInput = document.getElementById('outputKey');
+            keyInput.select();
+            navigator.clipboard.writeText(keyInput.value);
+            alert('تم نسخ كود التفعيل بنجاح!');
+        }
+
+        // روابط التشغيل
+        function showLinkModal() {
+            document.getElementById('currentAppLink').value = window.location.href;
+            document.getElementById('linkModal').classList.remove('hidden');
+        }
+        function closeLinkModal() { document.getElementById('linkModal').classList.add('hidden'); }
+        function copyAppLink() {
+            const linkInput = document.getElementById('currentAppLink');
+            linkInput.select();
+            navigator.clipboard.writeText(linkInput.value);
+            alert('تم نسخ الرابط بنجاح!');
+        }
+
+        // التنقل بين التبويبات
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('border-primary', 'text-primary');
+                btn.classList.add('border-transparent', 'text-gray-500');
+            });
+            document.getElementById('section-' + tabId).classList.remove('hidden');
+            const activeBtn = document.getElementById('tab-' + tabId);
+            activeBtn.classList.remove('border-transparent', 'text-gray-500');
+            activeBtn.classList.add('border-primary', 'text-primary');
+        }
+
+        // إدارة البيانات والواجهات
+        function saveData() {
+            localStorage.setItem('smh_items', JSON.stringify(db.items));
+            localStorage.setItem('smh_partners', JSON.stringify(db.partners));
+            localStorage.setItem('smh_invoices', JSON.stringify(db.invoices));
+            updateDashboardStats();
+        }
+
+        function updateDashboardStats() {
+            document.getElementById('statPartners').innerText = db.partners.length;
+            document.getElementById('statItems').innerText = db.items.length;
             
-            if(invoices.length === 0) {
-                listContainer.innerHTML = '<p class="text-gray-400 text-xs text-center py-6">لا توجد فواتير مسجلة حتى الآن</p>';
-                document.getElementById('totalSalesDisplay').innerText = '0.00 $';
+            let totalSales = db.invoices.reduce((sum, inv) => sum + inv.total, 0);
+            document.getElementById('statSalesUSD').innerText = '$' + totalSales.toFixed(2);
+
+            // تحديث القوائم المنسدلة
+            let partnerSelect = document.getElementById('invoicePartner');
+            partnerSelect.innerHTML = db.partners.map(p => `<option value="${p.id}">${p.name} (${p.type === 'customer' ? 'عميل' : 'مورد'})</option>`).join('');
+
+            let itemSelect = document.getElementById('posItemSelect');
+            itemSelect.innerHTML = db.items.map(i => `<option value="${i.id}">${i.name} - السعر: $${i.price}</option>`).join('');
+
+            renderItemsTable();
+            renderPartnersTable();
+        }
+
+        // المواد والمستودع
+        function addNewItem() {
+            const name = document.getElementById('newItemName').value.trim();
+            const stock = parseFloat(document.getElementById('newItemStock').value) || 0;
+            const price = parseFloat(document.getElementById('newItemPrice').value) || 0;
+            const barcode = document.getElementById('newItemBarcode').value.trim() || 'N/A';
+
+            if (!name) { alert('يرجى إدخال اسم المادة'); return; }
+
+            db.items.push({ id: Date.now(), name, stock, price, barcode });
+            saveData();
+            document.getElementById('newItemName').value = '';
+            document.getElementById('newItemStock').value = '';
+            document.getElementById('newItemPrice').value = '';
+            document.getElementById('newItemBarcode').value = '';
+            alert('تم إضافة المادة بنجاح');
+        }
+
+        function renderItemsTable() {
+            const tbody = document.getElementById('itemsTableBody');
+            if (db.items.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-400">لا توجد مواد مضافة</td></tr>`;
                 return;
             }
+            tbody.innerHTML = db.items.map(item => `
+                <tr>
+                    <td class="p-3 font-bold">${item.name}</td>
+                    <td class="p-3">${item.stock} قطعة</td>
+                    <td class="p-3 text-gray-500">1 صندوق = 12 قطعة</td>
+                    <td class="p-3 text-primary font-bold">$${item.price}</td>
+                    <td class="p-3 font-mono">${item.barcode}</td>
+                    <td class="p-3"><button onclick="deleteItem(${item.id})" class="text-rose-500 hover:text-rose-700 text-xs"><i class="fa-solid fa-trash"></i></button></td>
+                </tr>
+            `).join('');
+        }
 
-            let html = '';
-            let totalUSD = 0;
-            invoices.forEach((inv, index) => {
-                html += `<div class="flex justify-between items-center bg-white p-2 mb-2 rounded border text-xs shadow-xs">
-                    <div>
-                        <span class="font-bold text-royal">${inv.name}</span>
-                        <span class="text-gray-400 mx-1">(${inv.date})</span>
-                    </div>
-                    <div class="text-gold font-bold">
-                        ${inv.amount} ${inv.curr}
-                    </div>
-                </div>`;
-                if(inv.curr === 'USD') totalUSD += parseFloat(inv.amount);
+        function deleteItem(id) {
+            db.items = db.items.filter(i => i.id !== id);
+            saveData();
+        }
+
+        // العملاء والموردين
+        function addNewPartner() {
+            const name = document.getElementById('partnerName').value.trim();
+            const type = document.getElementById('partnerType').value;
+            const phone = document.getElementById('partnerPhone').value.trim();
+
+            if (!name) { alert('يرجى إدخال اسم الجهة'); return; }
+
+            db.partners.push({ id: Date.now(), name, type, phone, balance: 0 });
+            saveData();
+            document.getElementById('partnerName').value = '';
+            document.getElementById('partnerPhone').value = '';
+            alert('تم حفظ الجهة بنجاح');
+        }
+
+        function renderPartnersTable() {
+            const tbody = document.getElementById('partnersTableBody');
+            if (db.partners.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-400">لا توجد جهات مسجلة</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = db.partners.map(p => `
+                <tr>
+                    <td class="p-3 font-bold">${p.name}</td>
+                    <td class="p-3"><span class="px-2 py-1 rounded text-xs ${p.type === 'customer' ? 'bg-blue-50 text-primary' : 'bg-amber-50 text-amber-700'}">${p.type === 'customer' ? 'عميل' : 'مورد'}</span></td>
+                    <td class="p-3">${p.phone || '-'}</td>
+                    <td class="p-3 font-bold text-emerald-600">$${p.balance.toFixed(2)}</td>
+                    <td class="p-3"><button onclick="deletePartner(${p.id})" class="text-rose-500 hover:text-rose-700 text-xs"><i class="fa-solid fa-trash"></i></button></td>
+                </tr>
+            `).join('');
+        }
+
+        function deletePartner(id) {
+            db.partners = db.partners.filter(p => p.id !== id);
+            saveData();
+        }
+
+        // الفواتير ونقطة البيع
+        function addItemToInvoice() {
+            const itemId = parseInt(document.getElementById('posItemSelect').value);
+            const qty = parseFloat(document.getElementById('posItemQty').value) || 1;
+            const item = db.items.find(i => i.id === itemId);
+            if (!item) return;
+
+            const existing = currentInvoiceItems.find(i => i.id === itemId);
+            if (existing) {
+                existing.qty += qty;
+            } else {
+                currentInvoiceItems.push({ id: item.id, name: item.name, price: item.price, qty: qty });
+            }
+            renderInvoiceItems();
+        }
+
+        function renderInvoiceItems() {
+            const tbody = document.getElementById('invoiceItemsTable');
+            if (currentInvoiceItems.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-400">لا توجد مواد مضافة بالفاتورة</td></tr>`;
+                calculateInvoiceTotals();
+                return;
+            }
+            tbody.innerHTML = currentInvoiceItems.map((item, index) => `
+                <tr>
+                    <td class="p-3 font-bold">${item.name}</td>
+                    <td class="p-3"><input type="number" value="${item.qty}" min="1" onchange="updateInvoiceQty(${index}, this.value)" class="w-16 p-1 border rounded text-center text-sm"></td>
+                    <td class="p-3">$${item.price}</td>
+                    <td class="p-3 font-bold">$${(item.price * item.qty).toFixed(2)}</td>
+                    <td class="p-3"><button onclick="removeInvoiceItem(${index})" class="text-rose-500 hover:text-rose-700"><i class="fa-solid fa-trash"></i></button></td>
+                </tr>
+            `).join('');
+            calculateInvoiceTotals();
+        }
+
+        function updateInvoiceQty(index, qty) {
+            currentInvoiceItems[index].qty = parseFloat(qty) || 1;
+            calculateInvoiceTotals();
+        }
+
+        function removeInvoiceItem(index) {
+            currentInvoiceItems.splice(index, 1);
+            renderInvoiceItems();
+        }
+
+        function calculateInvoiceTotals() {
+            let subtotal = currentInvoiceItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            let discount = parseFloat(document.getElementById('invDiscount').value) || 0;
+            let total = Math.max(0, subtotal - discount);
+
+            document.getElementById('invSubtotal').innerText = '$' + subtotal.toFixed(2);
+            document.getElementById('invTotal').innerText = '$' + total.toFixed(2);
+        }
+
+        function saveInvoice() {
+            if (currentInvoiceItems.length === 0) { alert('الفاتورة فارغة'); return; }
+            const partnerId = document.getElementById('invoicePartner').value;
+            const currency = document.getElementById('invoiceCurrency').value;
+            const type = document.getElementById('invoiceType').value;
+            
+            let total = currentInvoiceItems.reduce((sum, item) => sum + (item.price * item.qty), 0) - (parseFloat(document.getElementById('invDiscount').value) || 0);
+
+            db.invoices.push({
+                id: Date.now(),
+                partnerId,
+                currency,
+                type,
+                items: [...currentInvoiceItems],
+                total
             });
 
-            listContainer.innerHTML = html;
-            document.getElementById('totalSalesDisplay').innerText = totalUSD.toFixed(2) + ' $';
+            // خصم المخزون
+            currentInvoiceItems.forEach(invItem => {
+                let stockItem = db.items.find(i => i.id === invItem.id);
+                if (stockItem) {
+                    if (type === 'sale') stockItem.stock -= invItem.qty;
+                    else stockItem.stock += invItem.qty;
+                }
+            });
+
+            saveData();
+            currentInvoiceItems = [];
+            renderInvoiceItems();
+            document.getElementById('invDiscount').value = '0';
+            alert('تم حفظ وترحيل الفاتورة بنجاح!');
         }
 
-        function clearData() {
-            if(confirm('هل أنت متأكد من مسح كافة السجلات؟')) {
-                localStorage.removeItem('smh_invoices');
-                loadInvoices();
-            }
+        function printInvoice() {
+            if (currentInvoiceItems.length === 0) { alert('لا توجد فاتورة للطباعة'); return; }
+            window.print();
         }
 
-        function exportData() {
-            alert('تم تجهيز البيانات، سيتم تصدير تقرير الحسابات قريباً.');
-        }
+        // التشغيل الأولي
+        window.onload = function() {
+            checkActivationStatus();
+            updateDashboardStats();
+        };
     </script>
 </body>
 </html>
