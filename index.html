@@ -67,10 +67,10 @@
         </div>
     </div>
 
-    <!-- الشريط العلوي -->
+    <!-- الشريط العلوي (تمت إزالة زر المطور نهائياً من هنا) -->
     <header class="bg-primary text-white shadow-md sticky top-0 z-40">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center space-x-3 space-x-reverse">
+            <div class="flex items-center space-x-3 space-x-reverse" ondblclick="openDeveloperModalSecure()">
                 <div class="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center text-white font-bold text-xl shadow">
                     <i class="fa-solid fa-cube"></i>
                 </div>
@@ -81,9 +81,6 @@
             </div>
             
             <div class="flex items-center gap-2">
-                <button onclick="openDeveloperModal()" class="bg-secondary hover:bg-amber-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 shadow">
-                    <i class="fa-solid fa-key"></i> لوحة المطور
-                </button>
                 <button onclick="showLinkModal()" class="bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1">
                     <i class="fa-solid fa-link"></i> نسخ رابط التشغيل
                 </button>
@@ -325,7 +322,7 @@
 
     </main>
 
-    <!-- نافذة لوحة تحكم المطور -->
+    <!-- نافذة لوحة تحكم المطور (مخفية تماماً ولا تفتح إلا بالضغط المزدوج على شعار المؤسسة وإدخال كلمة المرور) -->
     <div id="developerModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6">
             <div class="flex justify-between items-center mb-4 border-b pb-3">
@@ -372,7 +369,6 @@
 
     <!-- سكريبت النظام والتشغيل -->
     <script>
-        // إعدادات وبيانات النظام
         const DEVELOPER_WHATSAPP = "+963937288934";
         let hardwareId = localStorage.getItem('smh_hardware_id');
         if (!hardwareId) {
@@ -394,11 +390,8 @@
 
         let currentInvoiceItems = [];
 
-        // التحقق من حالة التفعيل والفترة التجريبية
         function checkActivationStatus() {
             document.getElementById('displayHardwareId').innerText = hardwareId;
-            
-            // ضبط رابط الواتساب المباشر للمطور
             const msg = encodeURIComponent(`مرحباً، أرغب بتفعيل نظام "SMH سريع وامن" لمحلي. معرّف جهازي هو: ${hardwareId}`);
             document.getElementById('whatsappSupportBtn').href = `https://wa.me/${DEVELOPER_WHATSAPP}?text=${msg}`;
 
@@ -408,7 +401,6 @@
                 return;
             }
 
-            // التحقق من الفترة التجريبية (10 أيام)
             let trialStart = localStorage.getItem('smh_trial_start');
             if (!trialStart) {
                 trialStart = new Date().getTime();
@@ -441,12 +433,19 @@
                 alert('تم تفعيل البرنامج بنجاح لمدة سنة كاملة!');
                 document.getElementById('activationOverlay').classList.add('hidden');
             } else {
-                alert('كود التفعيل غير صحيح! يرجى التواصل عبر الواتساب للحصول على الكود الخاص بجهازك.');
+                alert('كود التفعيل غير صحيح! يرجى التواصل عبر الواتساب للحصول على الكود.');
             }
         }
 
-        // لوحة المطور
-        function openDeveloperModal() { document.getElementById('developerModal').classList.remove('hidden'); }
+        // الطريقة السرية لفتح لوحة المطور: اضغط مرتين (Double Click) على شعار المؤسسة في الشريط العلوي وأدخل كلمة المرور (88934)
+        function openDeveloperModalSecure() {
+            const pin = prompt('أدخل كلمة مرور المطور الخاصة بك:');
+            if (pin === '88934') {
+                document.getElementById('developerModal').classList.remove('hidden');
+            } else if (pin !== null) {
+                alert('كلمة المرور غير صحيحة!');
+            }
+        }
         function closeDeveloperModal() { document.getElementById('developerModal').classList.add('hidden'); }
         
         function generateActivationKey() {
@@ -467,7 +466,6 @@
             alert('تم نسخ كود التفعيل بنجاح!');
         }
 
-        // روابط التشغيل
         function showLinkModal() {
             document.getElementById('currentAppLink').value = window.location.href;
             document.getElementById('linkModal').classList.remove('hidden');
@@ -480,7 +478,6 @@
             alert('تم نسخ الرابط بنجاح!');
         }
 
-        // التنقل بين التبويبات
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -493,7 +490,6 @@
             activeBtn.classList.add('border-primary', 'text-primary');
         }
 
-        // إدارة البيانات والواجهات
         function saveData() {
             localStorage.setItem('smh_items', JSON.stringify(db.items));
             localStorage.setItem('smh_partners', JSON.stringify(db.partners));
@@ -508,7 +504,6 @@
             let totalSales = db.invoices.reduce((sum, inv) => sum + inv.total, 0);
             document.getElementById('statSalesUSD').innerText = '$' + totalSales.toFixed(2);
 
-            // تحديث القوائم المنسدلة
             let partnerSelect = document.getElementById('invoicePartner');
             partnerSelect.innerHTML = db.partners.map(p => `<option value="${p.id}">${p.name} (${p.type === 'customer' ? 'عميل' : 'مورد'})</option>`).join('');
 
@@ -519,7 +514,6 @@
             renderPartnersTable();
         }
 
-        // المواد والمستودع
         function addNewItem() {
             const name = document.getElementById('newItemName').value.trim();
             const stock = parseFloat(document.getElementById('newItemStock').value) || 0;
@@ -560,7 +554,6 @@
             saveData();
         }
 
-        // العملاء والموردين
         function addNewPartner() {
             const name = document.getElementById('partnerName').value.trim();
             const type = document.getElementById('partnerType').value;
@@ -597,7 +590,6 @@
             saveData();
         }
 
-        // الفواتير ونقطة البيع
         function addItemToInvoice() {
             const itemId = parseInt(document.getElementById('posItemSelect').value);
             const qty = parseFloat(document.getElementById('posItemQty').value) || 1;
@@ -668,7 +660,6 @@
                 total
             });
 
-            // خصم المخزون
             currentInvoiceItems.forEach(invItem => {
                 let stockItem = db.items.find(i => i.id === invItem.id);
                 if (stockItem) {
@@ -689,7 +680,6 @@
             window.print();
         }
 
-        // التشغيل الأولي
         window.onload = function() {
             checkActivationStatus();
             updateDashboardStats();
